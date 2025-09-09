@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Plus, 
@@ -16,71 +16,172 @@ import {
   X
 } from "lucide-react";
 import InstAppViewer from './InstAppViewer';
+import axios from "axios";
 
 const Institute1 = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedJobForApplications, setSelectedJobForApplications] = useState(null);
-  const [vacancies, setVacancies] = useState([
-    {
-      id: "1",
-      title: "Assistant Professor - Computer Science",
-      department: "Computer Science",
-      location: "Main Campus",
-      type: "Full-time",
-      description: "We are seeking a dynamic Assistant Professor to join our Computer Science department. The successful candidate will be responsible for teaching undergraduate and graduate courses, conducting research, and participating in departmental activities.",
-      requirements: "PhD in Computer Science or related field\n3+ years of teaching experience\nStrong publication record\nExperience with grant writing",
-      deadline: "2024-12-15",
-      postedDate: "2024-02-01"
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [vacancies, setVacancies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchVacancies();
+  }, []);
+  
+  const fetchVacancies = async () => {
+    try {
+      const response = await axios.get("http://localhost:7001/api/jobview");
+      console.log("Jobs data:", response.data);
+
+      // ✅ if your API sends { success: true, data: [...] }
+      if (response.data && response.data.data) {
+        setVacancies(response.data.data);
+      } else {
+        setVacancies(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching vacancies:", error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+  
   const [formData, setFormData] = useState({
-    title: "",
+    titel: "",
     department: "",
     location: "",
-    type: "",
-    description: "",
-    requirements: "",
-    deadline: ""
+    employmentType: "",
+    lastdate: "",
+    message: "",
+    requirements: ""
   });
+  
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    const newVacancy = {
-      id: Date.now().toString(),
-      ...formData,
-      postedDate: new Date().toISOString().split('T')[0]
-    };
-    
-    setVacancies([newVacancy, ...vacancies]);
-    setFormData({
-      title: "",
-      department: "",
-      location: "",
-      type: "",
-      description: "",
-      requirements: "",
-      deadline: ""
-    });
-    setShowForm(false);
+    try {
+      let response;
+      let url;
+      
+      if (formData.id) {
+        // Update existing job - use the ID as a parameter
+        url = `http://localhost:7001/api/jobupdate/${formData.id}`;
+        response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+      } else {
+        // Create new job
+        url = 'http://localhost:7001/api/jobinsert';
+        response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error(formData.id ? 'Failed to update job' : 'Failed to submit job');
+      }
+
+      const result = await response.json();
+      
+      if (formData.id) {
+        // Update the existing vacancy in the list
+        setVacancies(vacancies.map(v => 
+          v.id === formData.id ? {...formData, postedDate: v.postedDate} : v
+        ));
+        alert('Job updated successfully!');
+      } else {
+        // If the API returns the created job, use it
+        const newVacancy = result.job || {
+          id: Date.now().toString(),
+          ...formData,
+          postedDate: new Date().toISOString().split('T')[0]
+        };
+        
+        setVacancies([newVacancy, ...vacancies]);
+        alert('Job posted successfully!');
+      }
+      
+      setFormData({
+        titel: "",
+        department: "",
+        location: "",
+        employmentType: "",
+        lastdate: "",
+        message: "",
+        requirements: ""
+      });
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error posting job:', error);
+      alert(formData.id ? 'Failed to update job. Please try again.' : 'Failed to post job. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleEditVacancy = (id) => {
-    const vacancyToEdit = vacancies.find(v => v.id === id);
-    if (vacancyToEdit) {
-      setFormData(vacancyToEdit);
-      setShowForm(true);
-    }
+  const handleEditVacancy = (vacancy) => {
+    setFormData({
+      id: vacancy.id,
+      titel: vacancy.titel || "",
+      department: vacancy.department || "",
+      location: vacancy.location || "",
+      employmentType: vacancy.employmentType || "",
+      lastdate: vacancy.lastdate || "",
+      message: vacancy.message || "",
+      requirements: vacancy.requirements || ""
+    });
+    setShowForm(true);
   };
 
-  const handleDeleteVacancy = (id) => {
+  const handleDeleteVacancy = async (id) => {
     if (window.confirm("Are you sure you want to delete this vacancy?")) {
-      setVacancies(vacancies.filter(v => v.id !== id));
+      try {
+        // Try with axios first
+        const response = await axios.delete(`http://localhost:7001/api/jobdelete/${id}`);
+        
+        console.log("Delete response:", response.data);
+        
+        if (response.data && response.data.success) {
+          setVacancies(vacancies.filter(v => v.id !== id));
+          alert('Vacancy deleted successfully!');
+        } else {
+          // If axios doesn't work, try with fetch
+          try {
+            const fetchResponse = await fetch(`http://localhost:7001/api/jobdelete/${id}`, {
+              method: 'DELETE',
+            });
+            
+            if (fetchResponse.ok) {
+              setVacancies(vacancies.filter(v => v.id !== id));
+              alert('Vacancy deleted successfully!');
+            } else {
+              throw new Error('Failed to delete vacancy');
+            }
+          } catch (fetchError) {
+            console.error('Fetch delete error:', fetchError);
+            throw new Error('Failed to delete vacancy');
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting vacancy:', error);
+        alert('Failed to delete vacancy. Please try again.');
+      }
     }
   };
 
@@ -119,13 +220,13 @@ const Institute1 = () => {
             className="new-vacancy-button"
             onClick={() => {
               setFormData({
-                title: "",
+                titel: "",
                 department: "",
                 location: "",
-                type: "",
-                description: "",
-                requirements: "",
-                deadline: ""
+                employmentType: "",
+                lastdate: "",
+                message: "",
+                requirements: ""
               });
               setShowForm(true);
             }}
@@ -170,10 +271,10 @@ const Institute1 = () => {
                     </label>
                     <div className="input-container">
                       <input
-                        id="title"
+                        id="titel"
                         type="text"
-                        value={formData.title}
-                        onChange={(e) => handleInputChange("title", e.target.value)}
+                        value={formData.titel}
+                        onChange={(e) => handleInputChange("titel", e.target.value)}
                         placeholder="e.g., Assistant Professor - Physics"
                         className="form-input"
                         required
@@ -228,9 +329,9 @@ const Institute1 = () => {
                     </label>
                     <div className="input-container">
                       <select
-                        id="type"
-                        value={formData.type}
-                        onChange={(e) => handleInputChange("type", e.target.value)}
+                        id="employmentType"
+                        value={formData.employmentType}
+                        onChange={(e) => handleInputChange("employmentType", e.target.value)}
                         className="form-select"
                         required
                       >
@@ -252,10 +353,10 @@ const Institute1 = () => {
                     <div className="input-container">
                       <Clock className="input-icon" />
                       <input
-                        id="deadline"
+                        id="lastdate"
                         type="date"
-                        value={formData.deadline}
-                        onChange={(e) => handleInputChange("deadline", e.target.value)}
+                        value={formData.lastdate}
+                        onChange={(e) => handleInputChange("lastdate", e.target.value)}
                         className="form-input with-icon"
                         min={new Date().toISOString().split('T')[0]}
                         required
@@ -272,9 +373,9 @@ const Institute1 = () => {
                   </label>
                   <div className="input-container">
                     <textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      id="message"
+                      value={formData.message}
+                      onChange={(e) => handleInputChange("message", e.target.value)}
                       placeholder="Describe the role and responsibilities..."
                       className="form-textarea"
                       rows="4"
@@ -308,14 +409,16 @@ const Institute1 = () => {
                     type="button" 
                     className="cancel-button"
                     onClick={() => setShowForm(false)}
+                    disabled={isSubmitting}
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
                     className="submit-button"
+                    disabled={isSubmitting}
                   >
-                    {formData.id ? "Update Vacancy" : "Post Vacancy"}
+                    {isSubmitting ? "Processing..." : (formData.id ? "Update Vacancy" : "Post Vacancy")}
                   </button>
                 </div>
               </form>
@@ -325,16 +428,22 @@ const Institute1 = () => {
 
         {/* Job Listings */}
         <div className="job-listings-container">
-          {vacancies.length > 0 ? (
+          {loading ? (
+            <div className="empty-state-card">
+              <div className="empty-state-content">
+                <h3 className="empty-state-title">Loading vacancies...</h3>
+              </div>
+            </div>
+          ) : vacancies.length > 0 ? (
             vacancies.map((vacancy) => (
               <div key={vacancy.id} className="job-card">
                 <div className="job-card-header">
                   <div className="job-card-main-info">
                     <div className="job-title-wrapper">
                       <GraduationCap className="job-title-icon" />
-                      <h3 className="job-title">{vacancy.title}</h3>
+                      <h3 className="job-title">{vacancy.titel}</h3>
                     </div>
-                    <div className="job-type-badge">{vacancy.type}</div>
+                    <div className="job-type-badge">{vacancy.employmentType}</div>
                   </div>
                   
                   <div className="job-meta-grid">
@@ -359,11 +468,11 @@ const Institute1 = () => {
                       <div>
                         <span className="meta-label">Deadline</span>
                         <span className="meta-value deadline">
-                          {new Date(vacancy.deadline).toLocaleDateString()}
+                          {new Date(vacancy.lastdate).toLocaleDateString()}
                           <span className={`deadline-tag ${
-                            new Date(vacancy.deadline) < new Date() ? 'expired' : 'active'
+                            new Date(vacancy.lastdate) < new Date() ? 'expired' : 'active'
                           }`}>
-                            {new Date(vacancy.deadline) < new Date() ? 'Expired' : 'Active'}
+                            {new Date(vacancy.lastdate) < new Date() ? 'Expired' : 'Active'}
                           </span>
                         </span>
                       </div>
@@ -374,7 +483,7 @@ const Institute1 = () => {
                       <div>
                         <span className="meta-label">Posted</span>
                         <span className="meta-value">
-                          {new Date(vacancy.postedDate).toLocaleDateString()}
+                          {new Date(vacancy.postedDate || vacancy.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -388,7 +497,7 @@ const Institute1 = () => {
                         <FileText className="section-icon" />
                         Description
                       </h4>
-                      <div className="section-text">{vacancy.description}</div>
+                      <div className="section-text">{vacancy.message}</div>
                     </div>
                     
                     <div className="detail-block">
@@ -397,7 +506,7 @@ const Institute1 = () => {
                         Requirements
                       </h4>
                       <ul className="requirements-list">
-                        {vacancy.requirements.split('\n').map((req, i) => (
+                        {(vacancy.requirements || "No requirements specified").split('\n').map((req, i) => (
                           req.trim() && <li key={i} className="requirement-item">{req}</li>
                         ))}
                       </ul>
@@ -408,21 +517,14 @@ const Institute1 = () => {
                     <div className="job-actions">
                       <button 
                         className="action-button edit-button"
-                        onClick={() => handleEditVacancy(vacancy.id)}
+                        onClick={() => handleEditVacancy(vacancy)}
                       >
                         <Edit className="button-icon" />
                         Edit
                       </button>
                       <button 
-                        className="action-button view-applications-button"
-                        onClick={() => setSelectedJobForApplications(vacancy)}
-                      >
-                        <Users className="button-icon" />
-                        View Applications
-                      </button>
-                      <button 
                         className="action-button delete-button"
-                        onClick={() => handleDeleteVacancy(vacancy.id)}
+                        onClick={() => handleDeleteVacancy(vacancy._id)}
                       >
                         <Trash2 className="button-icon" />
                         Delete
@@ -453,7 +555,7 @@ const Institute1 = () => {
         {/* Application Viewer */}
         {selectedJobForApplications && (
           <InstAppViewer 
-            jobTitle={selectedJobForApplications.title} 
+            jobTitle={selectedJobForApplications.titel} 
             jobId={selectedJobForApplications.id}
             isOpen={!!selectedJobForApplications}
             onClose={() => setSelectedJobForApplications(null)}
@@ -666,13 +768,13 @@ const Institute1 = () => {
         .close-form-button {
           background: none;
           border: none;
-          color: #9ca3af;
+          color: край;
           cursor: pointer;
           padding: 0.25rem;
           line-height: 1;
           display: flex;
           align-items: center;
-          justify-content: center;
+          край: center;
           border-radius: 50%;
           width: 2rem;
           height: 2rem;
@@ -785,9 +887,14 @@ const Institute1 = () => {
           transition: all 0.2s;
         }
 
-        .submit-button:hover {
-          background: linear-gradient(90deg, #2563eb, #1d4ed8);
+        .submit-button:hover:not(:disabled) {
+          background: linear-gradient(90 край, #2563eb, #1d4ed8);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-button:disabled {
+          background: #9ca3af;
+          cursor: not-allowed;
         }
 
         .cancel-button {
@@ -801,9 +908,14 @@ const Institute1 = () => {
           transition: all 0.2s;
         }
 
-        .cancel-button:hover {
+        .cancel-button:hover:not(:disabled) {
           background: #f3f4f6;
           border-color: #9ca3af;
+        }
+
+        .cancel-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         /* Job Listings Container */
@@ -850,7 +962,7 @@ const Institute1 = () => {
 
         .job-title-icon {
           color: #3b82f6;
-          width: 1.5rem;
+          край: 1.5rem;
           height: 1.5rem;
         }
 

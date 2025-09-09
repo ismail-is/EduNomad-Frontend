@@ -2,68 +2,104 @@ import { NavLink, useNavigate } from "react-router-dom";
 import JobZImage from "../../../../common/jobz-img";
 import { canRoute, candidate, empRoute, employer, publicUser } from "../../../../../globals/route-names";
 import { useState } from "react";
-import processLogin from "../../../../form-processing/login";
-import { formType } from "../../../../../globals/constants";
 
 function LoginPage() {
-
     const navigate = useNavigate();
-    const [canusername, setCanUsername] = useState('guest');
-    const [empusername, setEmpUsername] = useState('admin');
-    const [password, setPassword] = useState('12345');
+    const [candidateEmail, setCandidateEmail] = useState('');
+    const [employerEmail, setEmployerEmail] = useState('');
+    const [candidatePassword, setCandidatePassword] = useState('');
+    const [employerPassword, setEmployerPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState({ candidate: false, employer: false });
+    const [showCandidatePassword, setShowCandidatePassword] = useState(false);
+    const [showEmployerPassword, setShowEmployerPassword] = useState(false);
 
-    const handleCandidateLogin = (event) => {
+    const handleCandidateLogin = async (event) => {
         event.preventDefault();
-        loginCandidate();
+        setIsLoading({ ...isLoading, candidate: true });
+        setError('');
+        
+        try {
+            const response = await fetch('http://localhost:7001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: candidateEmail,
+                    password: candidatePassword
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Store token and user data
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirect based on user role
+                if (data.user.role === 'school' || data.user.role === 'parent') {
+                    navigate(canRoute(candidate.DASHBOARD));
+                } else if (data.user.role === 'teacher' || data.user.role === 'tutor') {
+                    navigate(empRoute(employer.DASHBOARD));
+                } else {
+                    // Default redirect for other roles
+                    navigate(publicUser.HOME1);
+                }
+            } else {
+                setError(data.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('Cannot connect to server. Please try again later.');
+        } finally {
+            setIsLoading({ ...isLoading, candidate: false });
+        }
     }
 
-    const handleEmployerLogin = (event) => {
+    const handleEmployerLogin = async (event) => {
         event.preventDefault();
-        loginEmployer();
-    }
+        setIsLoading({ ...isLoading, employer: true });
+        setError('');
+        
+        try {
+            const response = await fetch('http://localhost:7001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: employerEmail,
+                    password: employerPassword
+                })
+            });
 
-    const loginCandidate = () => {
-        processLogin(
-            {
-                type: formType.LOGIN_CANDIDATE,
-                username: canusername,
-                password: password
-            },
-            (valid) => {
-                if (valid) {
-                    moveToCandidate();
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Store token and user data
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirect based on user role
+                if (data.user.role === 'school' || data.user.role === 'parent') {
+                    navigate(canRoute(candidate.DASHBOARD));
+                } else if (data.user.role === 'teacher' || data.user.role === 'tutor') {
+                    navigate(empRoute(employer.DASHBOARD));
                 } else {
-                    // show error
-                    console.log('error');
+                    // Default redirect for other roles
+                    navigate(publicUser.HOME1);
                 }
+            } else {
+                setError(data.message || 'Login failed');
             }
-        );
-    }
-
-    const loginEmployer = () => {
-        processLogin(
-            {
-                type: formType.LOGIN_EMPLOYER,
-                username: empusername,
-                password: password
-            },
-            (valid) => {
-                if (valid) {
-                    moveToEmployer();
-                } else {
-                    // show error
-                    console.log('error');
-                }
-            }
-        );
-    }
-
-    const moveToCandidate = () => {
-        navigate(canRoute(candidate.DASHBOARD));
-    }
-
-    const moveToEmployer = () => {
-        navigate(empRoute(employer.DASHBOARD));
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('Cannot connect to server. Please try again later.');
+        } finally {
+            setIsLoading({ ...isLoading, employer: false });
+        }
     }
 
     return (
@@ -82,7 +118,8 @@ function LoginPage() {
                             <div className="twm-log-reg-form-wrap">
                                 <div className="twm-log-reg-logo-head">
                                     <NavLink to={publicUser.HOME1}>
-                                        <JobZImage src="images/logo-dark.png" alt="" className="logo" />
+                                         <img src="assets/images/Eduno logo.png" className="logo-img"/>
+                                        <h3 className='nav-text-ed'>EduNomad Connect</h3>
                                     </NavLink>
                                 </div>
                                 <div className="twm-log-reg-inner">
@@ -91,81 +128,73 @@ function LoginPage() {
                                             <span className="log-reg-form-title">Log In</span>
                                         </div>
                                     </div>
+                                    {error && (
+                                        <div className="alert alert-danger mt-3" role="alert">
+                                            {error}
+                                        </div>
+                                    )}
                                     <div className="twm-tabs-style-2">
-                                        <ul className="nav nav-tabs" id="myTab2" role="tablist">
-                                            {/*Login Candidate*/}
-                                            <li className="nav-item">
-                                                <button className="nav-link active" data-bs-toggle="tab" data-bs-target="#twm-login-candidate" type="button"><i className="fas fa-user-tie" />Candidate</button>
-                                            </li>
-                                            {/*Login Employer*/}
-                                            <li className="nav-item">
-                                                <button className="nav-link" data-bs-toggle="tab" data-bs-target="#twm-login-Employer" type="button"><i className="fas fa-building" />Employer</button>
-                                            </li>
-                                        </ul>
                                         <div className="tab-content" id="myTab2Content">
                                             {/*Login Candidate Content*/}
                                             <form onSubmit={handleCandidateLogin} className="tab-pane fade show active" id="twm-login-candidate">
                                                 <div className="row">
                                                     <div className="col-lg-12">
                                                         <div className="form-group mb-3">
-                                                            <input name="username"
-                                                                type="text"
+                                                            <input 
+                                                                name="email"
+                                                                type="email"
                                                                 required
                                                                 className="form-control"
-                                                                placeholder="Usearname*"
-                                                                value={canusername}
+                                                                placeholder="Email*"
+                                                                value={candidateEmail}
                                                                 onChange={(event) => {
-                                                                    setCanUsername(event.target.value);
-                                                                }} />
+                                                                    setCandidateEmail(event.target.value);
+                                                                }} 
+                                                            />
                                                         </div>
                                                     </div>
                                                     <div className="col-lg-12">
-                                                        <div className="form-group mb-3">
+                                                        <div className="form-group mb-3 password-input-container">
                                                             <input
                                                                 name="password"
-                                                                type="password"
+                                                                type={showCandidatePassword ? "text" : "password"}
                                                                 className="form-control"
                                                                 required
                                                                 placeholder="Password*"
-                                                                value={password}
+                                                                value={candidatePassword}
                                                                 onChange={(event) => {
-                                                                    setPassword(event.target.value);
-                                                                }} />
+                                                                    setCandidatePassword(event.target.value);
+                                                                }} 
+                                                            />
+                                                            <span 
+                                                                className="password-toggle-icon"
+                                                                onClick={() => setShowCandidatePassword(!showCandidatePassword)}
+                                                            >
+                                                                {showCandidatePassword ? (
+                                                                    <i className="fas fa-eye-slash"></i>
+                                                                ) : (
+                                                                    <i className="fas fa-eye"></i>
+                                                                )}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                     <div className="col-lg-12">
                                                         <div className="twm-forgot-wrap">
                                                             <div className="form-group mb-3">
                                                                 <div className="form-check">
-                                                                    <input type="checkbox" className="form-check-input" id="Password4" />
-                                                                    <label className="form-check-label rem-forgot" htmlFor="Password4">Remember me <a href="#" className="site-text-primary">Forgot Password</a></label>
+                                                                    <label className="form-check-label rem-forgot" htmlFor="Password4"><a href="#" className="site-text-primary">Forgot Password</a></label>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="col-md-12">
                                                         <div className="form-group">
-                                                            <button type="submit" className="site-button">Log in</button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12">
-                                                        <div className="form-group">
-                                                            <span className="center-text-or">Or</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12">
-                                                        <div className="form-group">
-                                                            <button type="submit" className="log_with_facebook">
-                                                                <i className="fab fa-facebook" />
-                                                                Continue with Facebook
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12">
-                                                        <div className="form-group">
-                                                            <button type="submit" className="log_with_google">
-                                                                <JobZImage src="images/google-icon.png" alt="" />
-                                                                Continue with Google
+                                                            <button 
+                                                                type="submit" 
+                                                                className="site-button"
+                                                                disabled={isLoading.candidate}
+                                                            >
+                                                                {isLoading.candidate ? 'Logging in...' : 'Log in'}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -177,64 +206,61 @@ function LoginPage() {
                                                     <div className="col-lg-12">
                                                         <div className="form-group mb-3">
                                                             <input
-                                                                name="username"
-                                                                type="text"
+                                                                name="email"
+                                                                type="email"
                                                                 required
                                                                 className="form-control"
-                                                                placeholder="Usearname*"
-                                                                value={empusername}
+                                                                placeholder="Email*"
+                                                                value={employerEmail}
                                                                 onChange={(event) => {
-                                                                    setEmpUsername(event.target.value);
-                                                                }} />
+                                                                    setEmployerEmail(event.target.value);
+                                                                }} 
+                                                            />
                                                         </div>
                                                     </div>
                                                     <div className="col-lg-12">
-                                                        <div className="form-group mb-3">
+                                                        <div className="form-group mb-3 password-input-container">
                                                             <input
                                                                 name="password"
-                                                                type="password"
+                                                                type={showEmployerPassword ? "text" : "password"}
                                                                 className="form-control"
                                                                 required
                                                                 placeholder="Password*"
-                                                                value={password}
+                                                                value={employerPassword}
                                                                 onChange={(event) => {
-                                                                    setPassword(event.target.value);
-                                                                }} />
+                                                                    setEmployerPassword(event.target.value);
+                                                                }} 
+                                                            />
+                                                            <span 
+                                                                className="password-toggle-icon"
+                                                                onClick={() => setShowEmployerPassword(!showEmployerPassword)}
+                                                            >
+                                                                {showEmployerPassword ? (
+                                                                    <i className="fas fa-eye-slash"></i>
+                                                                ) : (
+                                                                    <i className="fas fa-eye"></i>
+                                                                )}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                     <div className="col-lg-12">
                                                         <div className="twm-forgot-wrap">
                                                             <div className="form-group mb-3">
                                                                 <div className="form-check">
-                                                                    <input type="checkbox" className="form-check-input" id="Password4" />
-                                                                    <label className="form-check-label rem-forgot" htmlFor="Password4">Remember me <a href="#" className="site-text-primary">Forgot Password</a></label>
+                                                                    <input type="checkbox" className="form-check-input" id="Password5" />
+                                                                    <label className="form-check-label rem-forgot" htmlFor="Password5">Remember me <a href="#" className="site-text-primary">Forgot Password</a></label>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="col-md-12">
                                                         <div className="form-group">
-                                                            <button type="submit" className="site-button">Log in</button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12">
-                                                        <div className="form-group">
-                                                            <span className="center-text-or">Or</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12">
-                                                        <div className="form-group">
-                                                            <button type="submit" className="log_with_facebook">
-                                                                <i className="fab fa-facebook" />
-                                                                Continue with Facebook
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12">
-                                                        <div className="form-group">
-                                                            <button type="submit" className="log_with_google">
-                                                                <JobZImage src="images/google-icon.png" alt="" />
-                                                                Continue with Google
+                                                            <button 
+                                                                type="submit" 
+                                                                className="site-button"
+                                                                disabled={isLoading.employer}
+                                                            >
+                                                                {isLoading.employer ? 'Logging in...' : 'Log in'}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -248,6 +274,26 @@ function LoginPage() {
                     </div>
                 </div>
             </div>
+            <style>
+                {`
+                .password-input-container {
+                    position: relative;
+                }
+                
+                .password-toggle-icon {
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    cursor: pointer;
+                    color: #777;
+                }
+                
+                .password-toggle-icon:hover {
+                    color: #333;
+                }
+                `}
+            </style>
         </>
     )
 }

@@ -30,6 +30,7 @@ export const publicUser = {
     // HOME17: "/index17",
     // HOME18: "/index18",
     jobs: {
+        
         GRID: "/job-grid",
         GRID_MAP: "/job-grid-with-map",
         LIST: "/job-list",

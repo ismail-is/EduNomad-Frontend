@@ -58,6 +58,9 @@ import InstitutePortal1 from "../app/pannels/public-user/components/home/Institu
 import InstAppViewer from "../app/pannels/public-user/components/home/InstAppViewer";
 import Institute1 from "../app/pannels/public-user/components/home/Institute1";
 import SectionApplyJob from "../app/pannels/public-user/components/jobs/apply-job";
+import Register from "../app/pannels/public-user/components/pages/Register";
+import SignInPage from "../app/common/popups/popup-signin";
+import SignUpPage from "../app/common/popups/popup-signup";
 
 function PublicUserRoutes() {
     return (
@@ -116,6 +119,8 @@ function PublicUserRoutes() {
              <Route path={publicUser.Institute1} element={<Institute1 />} />
             {/* <Route path="/institute-page" element={<Institute/>} /> */}
             <Route path="/app-view" element={<InstAppViewer/>} />
+            <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/login" element={<SignUpPage />} />
         </Routes>
     )
 }

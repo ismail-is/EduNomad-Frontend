@@ -2,20 +2,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min';
 
-function SignUpPopup() {
+function Register() {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
         email: '',
         phone: '',
-        agree: false,
-        role: 'school'
+        agree: false
     });
     
     const [activeTab, setActiveTab] = useState('sign-candidate');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -24,92 +21,39 @@ function SignUpPopup() {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
-        
-        if (errorMessage) setErrorMessage('');
-    };
-
-    const handleRoleChange = (role) => {
-        setFormData(prev => ({
-            ...prev,
-            role: role
-        }));
-    };
-
-    const handleTabChange = (tab) => {
-        setActiveTab(tab);
-        
-        if (tab === 'sign-candidate') {
-            handleRoleChange('school');
-        } else {
-            handleRoleChange('teacher');
-        }
-    };
-
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setErrorMessage('');
-
-        if (!formData.agree) {
-            setErrorMessage('You must agree to the terms and conditions');
-            setIsSubmitting(false);
-            return;
-        }
 
         try {
-            const response = await fetch('http://localhost:7001/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.username,
-                    password: formData.password,
-                    email: formData.email,
-                    phone: formData.phone,
-                    role: formData.role
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `Server error: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            alert('Sign up successful! Please login to continue.');
+            // Here you would typically make an API call to your backend
+            // For demo purposes, we'll simulate an API call with setTimeout
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            // Show success message
+            alert('Sign up successful! Welcome to our platform.');
             
+            // Close the modal
             const modal = document.getElementById('sign_up_popup');
             const modalInstance = bootstrap.Modal.getInstance(modal);
-            if (modalInstance) {
-                modalInstance.hide();
-            }
+            modalInstance.hide();
             
-            navigate('/login');
+            // Redirect to home page
+            navigate('/');
             
+            // Reset form
             setFormData({
                 username: '',
                 password: '',
                 email: '',
                 phone: '',
-                agree: false,
-                role: 'school'
+                agree: false
             });
         } catch (error) {
+            alert('Sign up failed. Please try again.');
             console.error('Sign up error:', error);
-            if (error.message.includes('Failed to fetch')) {
-                setErrorMessage('Cannot connect to the server. Please check if the server is running on port 7001.');
-            } else {
-                setErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
-            }
         } finally {
             setIsSubmitting(false);
         }
@@ -117,6 +61,7 @@ function SignUpPopup() {
 
     return (
         <div className="modal fade twm-sign-up" id="sign_up_popup" aria-hidden="true" aria-labelledby="sign_up_popupLabel" tabIndex={-1}>
+<h1></h1>           
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                     <form onSubmit={handleSubmit}>
@@ -126,30 +71,24 @@ function SignUpPopup() {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
                         </div>
                         <div className="modal-body">
-                            {errorMessage && (
-                                <div className="alert alert-danger" role="alert">
-                                    <i className="fas fa-exclamation-circle me-2"></i>
-                                    {errorMessage}
-                                </div>
-                            )}
                             <div className="twm-tabs-style-2">
                                 <ul className="nav nav-tabs" id="myTab" role="tablist">
                                     <li className="nav-item" role="presentation">
                                         <button 
                                             className={`nav-link ${activeTab === 'sign-candidate' ? 'active' : ''}`} 
-                                            onClick={() => handleTabChange('sign-candidate')}
+                                            onClick={() => setActiveTab('sign-candidate')}
                                             type="button"
                                         >
-                                            <i className="fas fa-user-tie me-2"></i>School/Parent
+                                            <i className="fas fa-user-tie" />School/Parent
                                         </button>
                                     </li>
                                     <li className="nav-item" role="presentation">
                                         <button 
                                             className={`nav-link ${activeTab === 'sign-Employer' ? 'active' : ''}`} 
-                                            onClick={() => handleTabChange('sign-Employer')}
+                                            onClick={() => setActiveTab('sign-Employer')}
                                             type="button"
                                         >
-                                            <i className="fas fa-building me-2"></i>Teacher/Tutor
+                                            <i className="fas fa-building" />Teacher/Tutor
                                         </button>
                                     </li>
                                 </ul>
@@ -157,21 +96,6 @@ function SignUpPopup() {
                                     {/* School/Parent Signup */}
                                     <div className={`tab-pane fade ${activeTab === 'sign-candidate' ? 'show active' : ''}`} id="sign-candidate">
                                         <div className="row">
-                                            <div className="col-lg-12">
-                                                <div className="form-group mb-3">
-                                                    <label htmlFor="role-candidate" className="form-label">I am a*</label>
-                                                    <select 
-                                                        className="form-select"
-                                                        value={formData.role}
-                                                        onChange={(e) => handleRoleChange(e.target.value)}
-                                                    >
-                                                        <option value="school">School</option>
-                                                        <option value="parent">Parent</option>
-                                                        <option value="teacher">Teacher</option>
-                                                        <option value="tutor">Tutor</option>
-                                                    </select>
-                                                </div>
-                                            </div>
                                             <div className="col-lg-12">
                                                 <div className="form-group mb-3">
                                                     <input 
@@ -186,24 +110,16 @@ function SignUpPopup() {
                                                 </div>
                                             </div>
                                             <div className="col-lg-12">
-                                                <div className="form-group mb-3 position-relative">
+                                                <div className="form-group mb-3">
                                                     <input 
                                                         name="password" 
-                                                        type={showPassword ? "text" : "password"} 
+                                                        type="password" 
                                                         className="form-control" 
                                                         required 
                                                         placeholder="Password*" 
                                                         value={formData.password}
                                                         onChange={handleChange}
                                                     />
-                                                    <button 
-                                                        type="button"
-                                                        className="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2"
-                                                        onClick={togglePasswordVisibility}
-                                                        style={{zIndex: 5, border: 'none', background: 'transparent'}}
-                                                    >
-                                                        <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                                                    </button>
                                                 </div>
                                             </div>
                                             <div className="col-lg-12">
@@ -242,12 +158,11 @@ function SignUpPopup() {
                                                             name="agree"
                                                             checked={formData.agree}
                                                             onChange={handleChange}
-                                                            required
                                                         />
                                                         <label className="form-check-label" htmlFor="agree1">
                                                             I agree to the <a href="#">Terms and conditions</a>
                                                         </label>
-                                                        <p className="mt-2">Already registered?
+                                                        <p>Already registered?
                                                             <button 
                                                                 className="twm-backto-login" 
                                                                 data-bs-target="#sign_up_popup2" 
@@ -263,15 +178,10 @@ function SignUpPopup() {
                                             <div className="col-md-12">
                                                 <button 
                                                     type="submit" 
-                                                    className="btn btn-primary w-100 py-2"
+                                                    className="site-button" 
                                                     disabled={isSubmitting || !formData.agree}
                                                 >
-                                                    {isSubmitting ? (
-                                                        <>
-                                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                            Signing Up...
-                                                        </>
-                                                    ) : 'Sign Up'}
+                                                    {isSubmitting ? 'Signing Up...' : 'Sign Up'}
                                                 </button>
                                             </div>
                                         </div>
@@ -280,19 +190,6 @@ function SignUpPopup() {
                                     {/* Teacher/Tutor Signup */}
                                     <div className={`tab-pane fade ${activeTab === 'sign-Employer' ? 'show active' : ''}`} id="sign-Employer">
                                         <div className="row">
-                                            <div className="col-lg-12">
-                                                <div className="form-group mb-3">
-                                                    <label htmlFor="role-employer" className="form-label">I am a*</label>
-                                                    <select 
-                                                        className="form-select"
-                                                        value={formData.role}
-                                                        onChange={(e) => handleRoleChange(e.target.value)}
-                                                    >
-                                                        <option value="teacher">Teacher</option>
-                                                        <option value="tutor">Tutor</option>
-                                                    </select>
-                                                </div>
-                                            </div>
                                             <div className="col-lg-12">
                                                 <div className="form-group mb-3">
                                                     <input 
@@ -307,24 +204,16 @@ function SignUpPopup() {
                                                 </div>
                                             </div>
                                             <div className="col-lg-12">
-                                                <div className="form-group mb-3 position-relative">
+                                                <div className="form-group mb-3">
                                                     <input 
                                                         name="password" 
-                                                        type={showPassword ? "text" : "password"} 
+                                                        type="password" 
                                                         className="form-control" 
                                                         required 
                                                         placeholder="Password*" 
                                                         value={formData.password}
                                                         onChange={handleChange}
                                                     />
-                                                    <button 
-                                                        type="button"
-                                                        className="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2"
-                                                        onClick={togglePasswordVisibility}
-                                                        style={{zIndex: 5, border: 'none', background: 'transparent'}}
-                                                    >
-                                                        <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                                                    </button>
                                                 </div>
                                             </div>
                                             <div className="col-lg-12">
@@ -363,12 +252,11 @@ function SignUpPopup() {
                                                             name="agree"
                                                             checked={formData.agree}
                                                             onChange={handleChange}
-                                                            required
                                                         />
                                                         <label className="form-check-label" htmlFor="agree2">
                                                             I agree to the <a href="#">Terms and conditions</a>
                                                         </label>
-                                                        <p className="mt-2">Already registered?
+                                                        <p>Already registered?
                                                             <button 
                                                                 className="twm-backto-login" 
                                                                 data-bs-target="#sign_up_popup2" 
@@ -384,21 +272,25 @@ function SignUpPopup() {
                                             <div className="col-md-12">
                                                 <button 
                                                     type="submit" 
-                                                    className="btn btn-primary w-100 py-2"
+                                                    className="site-button" 
                                                     disabled={isSubmitting || !formData.agree}
                                                 >
-                                                    {isSubmitting ? (
-                                                        <>
-                                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                            Signing Up...
-                                                        </>
-                                                    ) : 'Sign Up'}
+                                                    {isSubmitting ? 'Signing Up...' : 'Sign Up'}
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div className="modal-footer">
+                            <span className="modal-f-title">Login or Sign up with</span>
+                            <ul className="twm-modal-social">
+                                <li><a href="https://www.facebook.com/" className="facebook-clr"><i className="fab fa-facebook-f" /></a></li>
+                                <li><a href="https://www.twitter.com/" className="twitter-clr"><i className="fab fa-twitter" /></a></li>
+                                <li><a href="https://in.linkedin.com/" className="linkedin-clr"><i className="fab fa-linkedin-in" /></a></li>
+                                <li><a href="https://www.google.com/" className="google-clr"><i className="fab fa-google" /></a></li>
+                            </ul>
                         </div>
                     </form>
                 </div>
@@ -407,4 +299,4 @@ function SignUpPopup() {
     );
 }
 
-export default SignUpPopup;
+export default Register;
