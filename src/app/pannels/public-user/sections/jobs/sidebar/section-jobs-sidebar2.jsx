@@ -77,26 +77,13 @@ function SectionJobsSidebar2({ _config }) {
                         </ul>
                     </div>
                 </div>
-                <div className="widget tw-sidebar-tags-wrap">
-                    <h4 className="section-head-small mb-4">Job Skills</h4>
-                    <div className="tagcloud">
-                        <a href="#">Communication</a>
-                        <a href="#">Instructional Design</a>
-                        <a href="#">Problem-Solving</a>
-                        <a href="#">Classroom Management</a>
-                        {/* <a href="#">Figma</a>
-                        <a href="#">Angular</a>
-                        <a href="#">Reactjs</a>
-                        <a href="#">Drupal</a>
-                        <a href="#">Joomla</a> */}
-                    </div>
-                </div>
+
             </div>
 
             {
                 _config.showJobInfo &&
                 <div className="twm-s-info3-wrap mb-5">
-                    <div className="twm-s-info3">
+                    {/* <div className="twm-s-info3">
                         <div className="twm-s-info-logo-section">
                             <div className="twm-media">
                                 <JobZImage src="images/client-logo2/instLogo.png" alt="#" />
@@ -104,34 +91,7 @@ function SectionJobsSidebar2({ _config }) {
                             <h4 className="twm-title">Math Teacher</h4>
                         </div>
                         <ul>
-                            {/* <li>
-                                <div className="twm-s-info-inner">
-                                    <i className="fas fa-building" />
-                                    <span className="twm-title">Company</span>
-                                    <div className="twm-s-info-discription">Software Development</div>
-                                </div>
-                            </li> */}
-                            {/* <li>
-                                <div className="twm-s-info-inner">
-                                    <i className="fas fa-mobile-alt" />
-                                    <span className="twm-title">Phone</span>
-                                    <div className="twm-s-info-discription">+291  560 56456</div>
-                                </div>
-                            </li> */}
-                            {/* <li>
-                                <div className="twm-s-info-inner">
-                                    <i className="fas fa-at" />
-                                    <span className="twm-title">Email</span>
-                                    <div className="twm-s-info-discription">thewebmaxdemo@gmail.com</div>
-                                </div>
-                            </li> */}
-                            {/* <li>
-                                <div className="twm-s-info-inner">
-                                    <i className="fas fa-desktop" />
-                                    <span className="twm-title">Website</span>
-                                    <div className="twm-s-info-discription">https://themeforest.net</div>
-                                </div>
-                            </li> */}
+                          
                             <li>
                                 <div className="twm-s-info-inner">
                                     <i className="fas fa-map-marker-alt" />
@@ -141,7 +101,7 @@ function SectionJobsSidebar2({ _config }) {
                             </li>
                         </ul>
                         <NavLink to={publicUser.pages.ABOUT} className=" site-button">Vew Profile</NavLink>
-                    </div>
+                    </div> */}
                 </div>
             }
             

@@ -121,6 +121,7 @@ function PublicUserRoutes() {
             <Route path="/app-view" element={<InstAppViewer/>} />
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/login" element={<SignUpPage />} />
+            <Route path="/apply/:id" element={<JobDetail1Page />} />
         </Routes>
     )
 }

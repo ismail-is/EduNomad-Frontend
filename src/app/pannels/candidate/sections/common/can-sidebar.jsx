@@ -7,20 +7,20 @@ function CanSidebarSection() {
     const currentpath = useLocation().pathname;
     return (
         <>
-            <div className="twm-candidate-profile-pic">
+            {/* <div className="twm-candidate-profile-pic">
                 <JobZImage src="images/user-avtar/pic4.jpg" alt="" />
                 <div className="upload-btn-wrapper">
                     <div id="upload-image-grid" />
                     <button className="site-button button-sm">Upload Photo</button>
                     <input type="file" name="myfile" id="file-uploader" accept=".jpg, .jpeg, .png" />
                 </div>
-            </div>
-            <div className="twm-mid-content text-center">
+            </div> */}
+            {/* <div className="twm-mid-content text-center">
                 <NavLink to={canRoute(publicUser.candidate.DETAIL1)} className="twm-job-title">
                     <h4>Randall Henderson </h4>
                 </NavLink>
                 <p>IT Contractor</p>
-            </div>
+            </div> */}
             <div className="twm-nav-list-1">
                 <ul>
                     <li className={setMenuActive(currentpath, canRoute(candidate.DASHBOARD))}>

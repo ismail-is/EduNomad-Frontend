@@ -34,7 +34,7 @@ export const publicUser = {
         GRID: "/job-grid",
         GRID_MAP: "/job-grid-with-map",
         LIST: "/job-list",
-        DETAIL1: "/job-detail/1",
+        DETAIL1: "/job-detail/:id",
         DETAIL2: "/job-detail/2",
         APPLY: "/apply-job"
     },

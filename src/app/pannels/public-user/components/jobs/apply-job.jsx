@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { User, Mail, MessageSquare, Upload, FileText, Send, CheckCircle } from 'lucide-react';
+import JobView from '../../sections/about/JobView';
 
 
 
@@ -62,165 +63,168 @@ function SectionApplyJob() {
   };
 
   return (
-    <div className="app-container">
-      <div className="main-content">
-        <div className="form-card">
-          {/* Header */}
-          <div className="form-header">
-            <h1 className="header-title">Apply For This Job</h1>
-            <p className="header-subtitle">Join our team and make a difference</p>
-          </div>
+    // <div className="app-container">
+    //   <div className="main-content">
+    //     <div className="form-card">
+    //       {/* Header */}
+    //       <div className="form-header">
+    //         <h1 className="header-title">Apply For This Job</h1>
+    //         <p className="header-subtitle">Join our team and make a differencesss</p>
+    //       </div>
 
-          <form onSubmit={handleSubmit} className="form-content">
-            {/* Name Field */}
-            <div className="form-field">
-              <label htmlFor="name" className="field-label">
-                Your Name
-              </label>
-              <div className="input-container">
-                <div className="input-icon">
-                  <User className="icon" />
-                </div>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter your full name"
-                  className="text-input"
-                  required
-                />
-              </div>
-            </div>
+    //       <form onSubmit={handleSubmit} className="form-content">
+    //         {/* Name Field */}
+    //         <div className="form-field">
+    //           <label htmlFor="name" className="field-label">
+    //             Your Name
+    //           </label>
+    //           <div className="input-container">
+    //             <div className="input-icon">
+    //               <User className="icon" />
+    //             </div>
+    //             <input
+    //               type="text"
+    //               id="name"
+    //               name="name"
+    //               value={formData.name}
+    //               onChange={handleInputChange}
+    //               placeholder="Enter your full name"
+    //               className="text-input"
+    //               required
+    //             />
+    //           </div>
+    //         </div>
 
-            {/* Email Field */}
-            <div className="form-field">
-              <label htmlFor="email" className="field-label">
-                Email Address
-              </label>
-              <div className="input-container">
-                <div className="input-icon">
-                  <Mail className="icon" />
-                </div>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="your.email@example.com"
-                  className="text-input"
-                  required
-                />
-              </div>
-            </div>
+    //         {/* Email Field */}
+    //         <div className="form-field">
+    //           <label htmlFor="email" className="field-label">
+    //             Email Address
+    //           </label>
+    //           <div className="input-container">
+    //             <div className="input-icon">
+    //               <Mail className="icon" />
+    //             </div>
+    //             <input
+    //               type="email"
+    //               id="email"
+    //               name="email"
+    //               value={formData.email}
+    //               onChange={handleInputChange}
+    //               placeholder="your.email@example.com"
+    //               className="text-input"
+    //               required
+    //             />
+    //           </div>
+    //         </div>
 
-            {/* Message Field */}
-            <div className="form-field">
-              <label htmlFor="message" className="field-label">
-                Cover Letter / Message
-              </label>
-              <div className="input-container">
-                <div className="textarea-icon">
-                  <MessageSquare className="icon" />
-                </div>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  rows={5}
-                  placeholder="Tell us why you're the perfect fit for this role..."
-                  className="text-input textarea"
-                  required
-                />
-              </div>
-            </div>
+    //         {/* Message Field */}
+    //         <div className="form-field">
+    //           <label htmlFor="message" className="field-label">
+    //             Cover Letter / Message
+    //           </label>
+    //           <div className="input-container">
+    //             <div className="textarea-icon">
+    //               <MessageSquare className="icon" />
+    //             </div>
+    //             <textarea
+    //               id="message"
+    //               name="message"
+    //               value={formData.message}
+    //               onChange={handleInputChange}
+    //               rows={5}
+    //               placeholder="Tell us why you're the perfect fit for this role..."
+    //               className="text-input textarea"
+    //               required
+    //             />
+    //           </div>
+    //         </div>
 
-            {/* File Upload */}
-            <div className="form-field">
-              <label className="field-label">
-                Upload Resume
-              </label>
+    //         {/* File Upload */}
+    //         <div className="form-field">
+    //           <label className="field-label">
+    //             Upload Resume
+    //           </label>
               
-              {!formData.resume ? (
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`file-drop-area ${isDragging ? 'dragging' : ''}`}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className={`upload-icon ${isDragging ? 'dragging-icon' : ''}`} />
-                  <p className="drop-text">
-                    Drop your resume here, or <span className="browse-text">browse</span>
-                  </p>
-                  <p className="file-types">Supports PDF, DOC, DOCX (max 5MB)</p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileSelect}
-                    accept=".pdf,.doc,.docx"
-                    className="file-input"
-                  />
-                </div>
-              ) : (
-                <div className="file-preview">
-                  <div className="file-info">
-                    <FileText className="file-icon" />
-                    <div>
-                      <p className="file-name">{formData.resume.name}</p>
-                      <p className="file-size">
-                        {(formData.resume.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={removeFile}
-                    className="remove-button"
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
-            </div>
+    //           {!formData.resume ? (
+    //             <div
+    //               onDragOver={handleDragOver}
+    //               onDragLeave={handleDragLeave}
+    //               onDrop={handleDrop}
+    //               className={`file-drop-area ${isDragging ? 'dragging' : ''}`}
+    //               onClick={() => fileInputRef.current?.click()}
+    //             >
+    //               <Upload className={`upload-icon ${isDragging ? 'dragging-icon' : ''}`} />
+    //               <p className="drop-text">
+    //                 Drop your resume here, or <span className="browse-text">browse</span>
+    //               </p>
+    //               <p className="file-types">Supports PDF, DOC, DOCX (max 5MB)</p>
+    //               <input
+    //                 ref={fileInputRef}
+    //                 type="file"
+    //                 onChange={handleFileSelect}
+    //                 accept=".pdf,.doc,.docx"
+    //                 className="file-input"
+    //               />
+    //             </div>
+    //           ) : (
+    //             <div className="file-preview">
+    //               <div className="file-info">
+    //                 <FileText className="file-icon" />
+    //                 <div>
+    //                   <p className="file-name">{formData.resume.name}</p>
+    //                   <p className="file-size">
+    //                     {(formData.resume.size / 1024 / 1024).toFixed(2)} MB
+    //                   </p>
+    //                 </div>
+    //               </div>
+    //               <button
+    //                 type="button"
+    //                 onClick={removeFile}
+    //                 className="remove-button"
+    //               >
+    //                 Remove
+    //               </button>
+    //             </div>
+    //           )}
+    //         </div>
 
-            {/* Alternative Option */}
-            {/* <div className="alternative-option">
-              <p className="option-text">
-                If you don't have a resume document, you may{' '}
-                <button type="button" className="option-button">
-                  write your brief professional profile here
-                </button>
-              </p>
-            </div> */}
+    //         {/* Alternative Option */}
+    //         {/* <div className="alternative-option">
+    //           <p className="option-text">
+    //             If you don't have a resume document, you may{' '}
+    //             <button type="button" className="option-button">
+    //               write your brief professional profile here
+    //             </button>
+    //           </p>
+    //         </div> */}
 
-            {/* Submit Button */}
-            <div className="submit-container">
-              <button
-                type="submit"
-                disabled={isSubmitted}
-                className={`submit-button ${isSubmitted ? 'submitted' : ''}`}
-              >
-                {isSubmitted ? (
-                  <>
-                    <CheckCircle className="button-icon" />
-                    <span>Application Sent!</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="button-icon" />
-                    <span>Send Application</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+    //         {/* Submit Button */}
+    //         <div className="submit-container">
+    //           <button
+    //             type="submit"
+    //             disabled={isSubmitted}
+    //             className={`submit-button ${isSubmitted ? 'submitted' : ''}`}
+    //           >
+    //             {isSubmitted ? (
+    //               <>
+    //                 <CheckCircle className="button-icon" />
+    //                 <span>Application Sent!</span>
+    //               </>
+    //             ) : (
+    //               <>
+    //                 <Send className="button-icon" />
+    //                 <span>Send Application</span>
+    //               </>
+    //             )}
+    //           </button>
+    //         </div>
+    //       </form>
+    //     </div>
+    //   </div>
+    // </div>
+    <>
+    <JobView/>
+    </>
   );
 }
 

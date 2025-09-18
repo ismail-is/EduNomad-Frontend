@@ -5,6 +5,7 @@ import JobZImage from "../../../../common/jobz-img";
 import CountUp from "react-countup";
 import { useEffect } from "react";
 import SectionJobCategories from "../../sections/about/section-job-categories";
+import JobView from "../../sections/about/JobView";
 
 function Home3Page() {
 
@@ -32,10 +33,9 @@ function Home3Page() {
                         <div className="twm-bnr-title-large"> Edunomad Connect</div>
                         <div className="twm-bnr-title-light">Brings Education Together</div>
                         <div className="twm-bnr-discription">Where Teachers, Schools, and Parents Find Each Other.</div>
-                        <div className="twm-bnr-search-bar">
+                        {/* <div className="twm-bnr-search-bar">
                             <form>
                                 <div className="row">
-                                    {/*Title*/}
                                     <div className="form-group col-xl-3 col-lg-6 col-md-6">
                                         <label>Subject</label>
                                         <select className="wt-search-bar-select selectpicker" data-live-search="true" title="" id="j-Job_Title" data-bv-field="size">
@@ -46,7 +46,6 @@ function Home3Page() {
                                             <option>Mathematics</option>
                                         </select>
                                     </div>
-                                    {/*All Category*/}
                                     <div className="form-group col-xl-4 col-lg-6 col-md-6">
                                         <label>Type</label>
                                         <select className="wt-search-bar-select selectpicker" data-live-search="true" title="" id="j-All_Category" data-bv-field="size">
@@ -57,7 +56,6 @@ function Home3Page() {
                                             <option>Intern</option>
                                         </select>
                                     </div>
-                                    {/*Location*/}
                                     <div className="form-group col-xl-3 col-lg-6 col-md-6">
                                         <label>Location</label>
                                         <div className="twm-inputicon-box">
@@ -65,20 +63,22 @@ function Home3Page() {
                                             <i className="twm-input-icon fas fa-map-marker-alt" />
                                         </div>
                                     </div>
-                                    {/*Find job btn*/}
                                     <div className="form-group col-xl-2 col-lg-6 col-md-6">
                                         <button type="button" className="site-button">Find Job</button>
                                     </div>
                                 </div>
                             </form>
-                        </div>
-                        <div className="twm-bnr-popular-search">
+                        </div> */}
+                        {/* <div className="form-group col-xl-12 col-lg-6 col-md-6 ">
+                                        <button type="button" className="site-button">Find Job</button>
+                                    </div> */}
+                        {/* <div className="twm-bnr-popular-search">
                             <span className="twm-title">Popular Searches:</span>
                             <NavLink to={publicUser.jobs.LIST}>Teacher</NavLink> ,
                             <NavLink to={publicUser.jobs.LIST}>Tutor</NavLink> ,
                             <NavLink to={publicUser.jobs.LIST}>Intern</NavLink> ,
                             <NavLink to={publicUser.jobs.LIST}>Trainee</NavLink> ...
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -194,21 +194,19 @@ function Home3Page() {
             </div>
             {/* FEATURED SECTION END */}
             {/* JOB POST START */}
-            <div className="section-full p-t120 p-b90 site-bg-gray twm-bg-ring-wrap2">
+            {/* <div className="section-full p-t120 p-b90 site-bg-gray twm-bg-ring-wrap2">
                 <div className="twm-bg-ring-right" />
                 <div className="twm-bg-ring-left" />
                 <div className="container">
                     <div className="wt-separator-two-part">
                         <div className="row wt-separator-two-part-row">
                             <div className="col-xl-6 col-lg-6 col-md-12 wt-separator-two-part-left">
-                                {/* title="" START*/}
                                 <div className="section-head left wt-small-separator-outer">
                                     <div className="wt-small-separator site-text-primary">
                                         <div>All Jobs Post</div>
                                     </div>
                                     <h2 className="wt-title">Find Your Career You Deserve it</h2>
                                 </div>
-                                {/* title="" END*/}
                             </div>
                             <div className="col-xl-6 col-lg-6 col-md-12 wt-separator-two-part-right text-right">
                                 <NavLink to={publicUser.jobs.LIST} className=" site-button">Browse All Jobs</NavLink>
@@ -232,7 +230,6 @@ function Home3Page() {
                                             <p className="twm-job-address">Pune, Maharashtra</p>
                                             <p>Qualification: B.A. in English + B.Ed.</p>
                                             <p>Experience: Minimum 3 years teaching middle or high school English </p>
-                                            {/* <a href="https://themeforest.net/user/thewebmax/portfolio" className="twm-job-websites site-text-primary">https://thewebmax.com</a> */}
                                         </div>
                                         <div className="twm-right-content">
                                             <div className="twm-jobs-amount">Apply Before: <span> August 20, 2025</span></div>
@@ -255,7 +252,6 @@ function Home3Page() {
                                             <p>Qualification: M.Sc. in Physics + B.Ed.</p>
                                             <p>Experience: At least 2 years teaching experience at the secondary level </p>
                                             
-                                            {/* <a href="https://themeforest.net/user/thewebmax/portfolio" className="twm-job-websites site-text-primary">https://thewebmax.com</a> */}
                                         </div>
                                         <div className="twm-right-content">
                                             <div className="twm-jobs-amount">Apply Before:<span> September 5, 2025</span></div>
@@ -277,7 +273,7 @@ function Home3Page() {
                                             <p className="twm-job-address">Remote (based in India)</p>
                                              <p>Qualification: B.Sc. or M.Sc. in Mathematics</p>
                                             <p>Experience:1+ year of online teaching experience for Grades 8–12</p>
-                                            {/* <a href="https://themeforest.net/user/thewebmax/portfolio" className="twm-job-websites site-text-primary">https://thewebmax.com</a> */}
+                                            <a href="https://themeforest.net/user/thewebmax/portfolio" className="twm-job-websites site-text-primary">https://thewebmax.com</a>
                                         </div>
                                         <div className="twm-right-content">
                                             <div className="twm-jobs-amount">Apply Before:<span> November 12, 2025</span></div>
@@ -299,7 +295,7 @@ function Home3Page() {
                                             <p className="twm-job-address">Jaipur, Rajasthan</p>
                                             <p>Qualification: Diploma or Degree in Fine Arts / Visual Arts / Art Education</p>
                                             <p>Experience: Minimum 2 years of teaching art in primary or middle school </p>
-                                            {/* <a href="https://themeforest.net/user/thewebmax/portfolio" className="twm-job-websites site-text-primary">https://thewebmax.com</a> */}
+                                            <a href="https://themeforest.net/user/thewebmax/portfolio" className="twm-job-websites site-text-primary">https://thewebmax.com</a>
                                         </div>
                                         <div className="twm-right-content">
                                             <div className="twm-jobs-amount">Apply Before: <span> September 10, 2025</span></div>
@@ -311,10 +307,10 @@ function Home3Page() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
             {/* JOB POST END */}
             {/* CANDIDATES START */}
-         
+         <JobView/>
            <SectionJobCategories />
         </>
     )

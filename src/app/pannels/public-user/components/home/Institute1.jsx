@@ -13,7 +13,9 @@ import {
   ListChecks, 
   Edit, 
   Trash2,
-  X
+  X,
+  Search,
+  Filter
 } from "lucide-react";
 import InstAppViewer from './InstAppViewer';
 import axios from "axios";
@@ -24,6 +26,8 @@ const Institute1 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [vacancies, setVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterEmploymentType, setFilterEmploymentType] = useState("all");
 
   useEffect(() => {
     fetchVacancies();
@@ -31,10 +35,15 @@ const Institute1 = () => {
   
   const fetchVacancies = async () => {
     try {
-      const response = await axios.get("http://localhost:7001/api/jobview");
+      const token = localStorage.getItem('token');
+      const response = await axios.get("http://localhost:7001/api/jobviewauth", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
       console.log("Jobs data:", response.data);
 
-      // ✅ if your API sends { success: true, data: [...] }
       if (response.data && response.data.data) {
         setVacancies(response.data.data);
       } else {
@@ -42,6 +51,10 @@ const Institute1 = () => {
       }
     } catch (error) {
       console.error("Error fetching vacancies:", error);
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        // Redirect to login or handle token refresh
+      }
     } finally {
       setLoading(false);
     }
@@ -64,52 +77,41 @@ const Institute1 = () => {
     setIsSubmitting(true);
     
     try {
-      let response;
+      const token = localStorage.getItem('token');
       let url;
+      let method;
       
-      if (formData.id) {
-        // Update existing job - use the ID as a parameter
-        url = `http://localhost:7001/api/jobupdate/${formData.id}`;
-        response = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
+      if (formData._id) {
+        // Update existing job
+        url = `http://localhost:7001/api/jobupdate/${formData._id}`;
+        method = 'PUT';
       } else {
         // Create new job
         url = 'http://localhost:7001/api/jobinsert';
-        response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
+        method = 'POST';
       }
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(formData.id ? 'Failed to update job' : 'Failed to submit job');
+        throw new Error(data.message || (formData._id ? 'Failed to update job' : 'Failed to submit job'));
       }
 
-      const result = await response.json();
+      // Refetch vacancies to get updated data
+      await fetchVacancies();
       
-      if (formData.id) {
-        // Update the existing vacancy in the list
-        setVacancies(vacancies.map(v => 
-          v.id === formData.id ? {...formData, postedDate: v.postedDate} : v
-        ));
+      if (formData._id) {
         alert('Job updated successfully!');
       } else {
-        // If the API returns the created job, use it
-        const newVacancy = result.job || {
-          id: Date.now().toString(),
-          ...formData,
-          postedDate: new Date().toISOString().split('T')[0]
-        };
-        
-        setVacancies([newVacancy, ...vacancies]);
         alert('Job posted successfully!');
       }
       
@@ -125,7 +127,7 @@ const Institute1 = () => {
       setShowForm(false);
     } catch (error) {
       console.error('Error posting job:', error);
-      alert(formData.id ? 'Failed to update job. Please try again.' : 'Failed to post job. Please try again.');
+      alert(error.message || (formData._id ? 'Failed to update job. Please try again.' : 'Failed to post job. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -137,12 +139,12 @@ const Institute1 = () => {
 
   const handleEditVacancy = (vacancy) => {
     setFormData({
-      id: vacancy.id,
+      _id: vacancy._id,
       titel: vacancy.titel || "",
       department: vacancy.department || "",
       location: vacancy.location || "",
       employmentType: vacancy.employmentType || "",
-      lastdate: vacancy.lastdate || "",
+      lastdate: vacancy.lastdate ? new Date(vacancy.lastdate).toISOString().split('T')[0] : "",
       message: vacancy.message || "",
       requirements: vacancy.requirements || ""
     });
@@ -152,31 +154,18 @@ const Institute1 = () => {
   const handleDeleteVacancy = async (id) => {
     if (window.confirm("Are you sure you want to delete this vacancy?")) {
       try {
-        // Try with axios first
-        const response = await axios.delete(`http://localhost:7001/api/jobdelete/${id}`);
-        
-        console.log("Delete response:", response.data);
+        const token = localStorage.getItem('token');
+        const response = await axios.delete(`http://localhost:7001/api/jobdelete/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         
         if (response.data && response.data.success) {
-          setVacancies(vacancies.filter(v => v.id !== id));
+          setVacancies(vacancies.filter(v => v._id !== id));
           alert('Vacancy deleted successfully!');
         } else {
-          // If axios doesn't work, try with fetch
-          try {
-            const fetchResponse = await fetch(`http://localhost:7001/api/jobdelete/${id}`, {
-              method: 'DELETE',
-            });
-            
-            if (fetchResponse.ok) {
-              setVacancies(vacancies.filter(v => v.id !== id));
-              alert('Vacancy deleted successfully!');
-            } else {
-              throw new Error('Failed to delete vacancy');
-            }
-          } catch (fetchError) {
-            console.error('Fetch delete error:', fetchError);
-            throw new Error('Failed to delete vacancy');
-          }
+          throw new Error('Failed to delete vacancy');
         }
       } catch (error) {
         console.error('Error deleting vacancy:', error);
@@ -184,6 +173,18 @@ const Institute1 = () => {
       }
     }
   };
+
+  // Filter vacancies based on search term and employment type
+  const filteredVacancies = vacancies.filter(vacancy => {
+    const matchesSearch = vacancy.titel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vacancy.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vacancy.location?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesEmploymentType = filterEmploymentType === "all" || 
+                                 vacancy.employmentType === filterEmploymentType;
+    
+    return matchesSearch && matchesEmploymentType;
+  });
 
   return (
     <div className="institute-portal">
@@ -236,6 +237,34 @@ const Institute1 = () => {
           </button>
         </div>
 
+        {/* Search and Filter Section */}
+        <div className="search-filter-section">
+          <div className="search-box">
+            <Search className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search jobs by title, department, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="filter-dropdown">
+            <Filter className="filter-icon" />
+            <select
+              value={filterEmploymentType}
+              onChange={(e) => setFilterEmploymentType(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">All Employment Types</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+              <option value="Visiting">Visiting Position</option>
+            </select>
+          </div>
+        </div>
+
         {/* Add Job Form Modal */}
         {showForm && (
           <div className="job-form-container">
@@ -246,10 +275,10 @@ const Institute1 = () => {
                   <Briefcase className="form-header-icon" />
                   <div>
                     <h3 className="form-title">
-                      {formData.id ? "Edit Job Posting" : "Create New Job Posting"}
+                      {formData._id ? "Edit Job Posting" : "Create New Job Posting"}
                     </h3>
                     <p className="form-subtitle">
-                      {formData.id ? "Update the job details" : "Fill in the details to attract qualified candidates"}
+                      {formData._id ? "Update the job details" : "Fill in the details to attract qualified candidates"}
                     </p>
                   </div>
                 </div>
@@ -418,7 +447,7 @@ const Institute1 = () => {
                     className="submit-button"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Processing..." : (formData.id ? "Update Vacancy" : "Post Vacancy")}
+                    {isSubmitting ? "Processing..." : (formData._id ? "Update Vacancy" : "Post Vacancy")}
                   </button>
                 </div>
               </form>
@@ -431,12 +460,13 @@ const Institute1 = () => {
           {loading ? (
             <div className="empty-state-card">
               <div className="empty-state-content">
+                <div className="loading-spinner"></div>
                 <h3 className="empty-state-title">Loading vacancies...</h3>
               </div>
             </div>
-          ) : vacancies.length > 0 ? (
-            vacancies.map((vacancy) => (
-              <div key={vacancy.id} className="job-card">
+          ) : filteredVacancies.length > 0 ? (
+            filteredVacancies.map((vacancy) => (
+              <div key={vacancy._id} className="job-card">
                 <div className="job-card-header">
                   <div className="job-card-main-info">
                     <div className="job-title-wrapper">
@@ -538,8 +568,12 @@ const Institute1 = () => {
             <div className="empty-state-card">
               <div className="empty-state-content">
                 <Users className="empty-state-icon" />
-                <h3 className="empty-state-title">No job vacancies posted yet</h3>
-                <p className="empty-state-text">Start by posting your first job vacancy</p>
+                <h3 className="empty-state-title">No job vacancies found</h3>
+                <p className="empty-state-text">
+                  {searchTerm || filterEmploymentType !== "all" 
+                    ? "Try adjusting your search or filter criteria" 
+                    : "Start by posting your first job vacancy"}
+                </p>
                 <button 
                   className="empty-state-button"
                   onClick={() => setShowForm(true)}
@@ -683,6 +717,73 @@ const Institute1 = () => {
           height: 1rem;
         }
 
+        /* Search and Filter Section */
+        .search-filter-section {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 2rem;
+          flex-wrap: wrap;
+        }
+
+        .search-box {
+          position: relative;
+          flex: 1;
+          min-width: 250px;
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 0.875rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9ca3af;
+          width: 1rem;
+          height: 1rem;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          font-size: 0.875rem;
+          color: #374151;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-dropdown {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .filter-icon {
+          position: absolute;
+          left: 0.875rem;
+          color: #9ca3af;
+          width: 1rem;
+          height: 1rem;
+          z-index: 1;
+        }
+
+        .filter-select {
+          padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          font-size: 0.875rem;
+          color: #374151;
+          background-color: white;
+          cursor: pointer;
+          appearance: none;
+          min-width: 200px;
+        }
+
         /* Job Form Styles */
         .job-form-container {
           position: fixed;
@@ -768,13 +869,13 @@ const Institute1 = () => {
         .close-form-button {
           background: none;
           border: none;
-          color: край;
+          color: #6b7280;
           cursor: pointer;
           padding: 0.25rem;
           line-height: 1;
           display: flex;
           align-items: center;
-          край: center;
+          justify-content: center;
           border-radius: 50%;
           width: 2rem;
           height: 2rem;
@@ -888,7 +989,7 @@ const Institute1 = () => {
         }
 
         .submit-button:hover:not(:disabled) {
-          background: linear-gradient(90 край, #2563eb, #1d4ed8);
+          background: linear-gradient(90deg, #2563eb, #1d4ed8);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
@@ -962,7 +1063,7 @@ const Institute1 = () => {
 
         .job-title-icon {
           color: #3b82f6;
-          край: 1.5rem;
+          width: 1.5rem;
           height: 1.5rem;
         }
 
@@ -1121,16 +1222,6 @@ const Institute1 = () => {
           background-color: #dbeafe;
         }
 
-        .view-applications-button {
-          background-color: #f0fdf4;
-          color: #16a34a;
-          border: 1px solid #bbf7d0;
-        }
-
-        .view-applications-button:hover {
-          background-color: #dcfce7;
-        }
-
         .delete-button {
           background-color: #fef2f2;
           color: #ef4444;
@@ -1196,6 +1287,22 @@ const Institute1 = () => {
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
+        /* Loading Spinner */
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #f3f4f6;
+          border-top: 4px solid #3b82f6;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
         /* Responsive Adjustments */
         @media (max-width: 768px) {
           .job-meta-grid {
@@ -1209,6 +1316,14 @@ const Institute1 = () => {
 
           .portal-header {
             padding-top: 4rem;
+          }
+
+          .search-filter-section {
+            flex-direction: column;
+          }
+
+          .filter-select {
+            min-width: 100%;
           }
         }
 

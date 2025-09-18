@@ -6,20 +6,22 @@ function Header1({ _config }) {
     const [menuActive, setMenuActive] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState({ 
-        name: 'John Doe', 
-        email: 'john.doe@example.com',
-        phone: '+1 (555) 123-4567'
+        name: '', 
+        email: '',
+        phone: '',
+        role: ''
     });
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
     useEffect(() => {
-        // Check if user is logged in (example using localStorage)
+        // Check if user is logged in
         const token = localStorage.getItem('token');
         const userData = localStorage.getItem('user');
         
         if (token && userData) {
             setIsLoggedIn(true);
-            setUser(JSON.parse(userData));
+            const parsedUser = JSON.parse(userData);
+            setUser(parsedUser);
         }
         
         // Initialize Bootstrap tooltips
@@ -37,13 +39,11 @@ function Header1({ _config }) {
     }
 
     const handleLogout = () => {
-        // Clear user data from storage
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setIsLoggedIn(false);
-        setUser({ name: '', email: '', phone: '' });
+        setUser({ name: '', email: '', phone: '', role: '' });
         setProfileDropdownOpen(false);
-        // Optional: redirect to home page
         window.location.href = '/';
     };
 
@@ -83,7 +83,25 @@ function Header1({ _config }) {
                                 <ul className=" nav navbar-nav">
                                     <li className="has-mega-menu"><a href="/">Home</a></li>
                                     <li className="has-child"><a href="/about-us">About Us</a></li>
-                                    <li className="has-child"><a href="/inst-portal">Post Job</a></li>
+                                    
+                                    {/* Conditional rendering based on role and login status */}
+                                    {isLoggedIn ? (
+                                        <>
+                                            {/* Show Post Job for school/parent roles */}
+                                            {(user.role === 'school' || user.role === 'parent') && (
+                                                <li className="has-child"><a href="/inst-portal">Post Job</a></li>
+                                            )}
+                                            
+                                            {/* Show Apply Job for teacher/tutor roles */}
+                                            {(user.role === 'teacher' || user.role === 'tutor') && (
+                                                <li className="has-child"><a href="/apply-job">Apply Job</a></li>
+                                            )}
+                                        </>
+                                    ) : (
+                                        // Hide both links when not logged in
+                                        null
+                                    )}
+                                    
                                     <li className="has-child"><a href="/contact-us">Contact Us</a></li>
                                 </ul>
                             </div>
@@ -101,17 +119,16 @@ function Header1({ _config }) {
                                                         onClick={toggleProfileDropdown}
                                                     >
                                                         <img 
-                                                            src="https://ui-avatars.com/api/?name=John+Doe&background=3b5d50&color=fff" 
+                                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.username)}&background=3b5d50&color=fff`} 
                                                             alt="User" 
                                                             className="user-avatar"
                                                         />
-                                                        <span className="user-name">{user.name}</span>
+                                                        <span className="user-name">{user.name || user.username}</span>
                                                     </button>
                                                     {profileDropdownOpen && (
                                                         <div className="dropdown-menu show" aria-labelledby="userDropdown">
                                                             <div className="dropdown-header">
                                                                 <h6>User Profile</h6>
-                                                                {/* <small>Full account details</small> */}
                                                             </div>
                                                             <div className="dropdown-body">
                                                                 <div className="user-info-item">
@@ -122,9 +139,15 @@ function Header1({ _config }) {
                                                                     <i className="fas fa-envelope"></i>
                                                                     <span>{user.email}</span>
                                                                 </div>
+                                                                {user.phone && (
+                                                                    <div className="user-info-item">
+                                                                        <i className="fas fa-phone"></i>
+                                                                        <span>{user.phone}</span>
+                                                                    </div>
+                                                                )}
                                                                 <div className="user-info-item">
-                                                                    <i className="fas fa-phone"></i>
-                                                                    <span>{user.phone}</span>
+                                                                    <i className="fas fa-user-tag"></i>
+                                                                    <span>{user.role}</span>
                                                                 </div>
                                                             </div>
                                                             <div className="dropdown-footer">
@@ -156,18 +179,6 @@ function Header1({ _config }) {
                                 )}
                             </div>
                         </div>
-                    </div>
-                    {/* SITE Search */}
-                    <div id="search">
-                        <span className="close"></span>
-                        <form role="search" id="searchform" action="/search" method="get" className="radius-xl">
-                            <input className="form-control" name="q" type="search" placeholder="Type to search" />
-                            <span className="input-group-append">
-                                <button type="button" className="search-btn">
-                                    <i className="fa fa-paper-plane"></i>
-                                </button>
-                            </span>
-                        </form>
                     </div>
                 </div>
             </header>
@@ -228,10 +239,6 @@ function Header1({ _config }) {
                     font-weight: 600;
                 }
                 
-                .dropdown-header small {
-                    opacity: 0.8;
-                }
-                
                 .dropdown-body {
                     padding: 15px;
                 }
@@ -274,7 +281,6 @@ function Header1({ _config }) {
                 }
             `}</style>
 
-            {/* Include Font Awesome for icons */}
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
         </>
     )
