@@ -4,7 +4,7 @@ import axios from 'axios';
 
 function SectionCandidateOverview() {
     const [jobCount, setJobCount] = useState(0);
-    const [applicationCount, setApplicationCount] = useState(435);
+    const [applicationCount, setApplicationCount] = useState(0);
     const [messageCount, setMessageCount] = useState(28);
     const [notificationCount, setNotificationCount] = useState(18);
     const [loading, setLoading] = useState(true);
@@ -12,6 +12,7 @@ function SectionCandidateOverview() {
 
     useEffect(() => {
         fetchJobCount();
+        applyView();
     }, []);
 
     const fetchJobCount = async () => {
@@ -46,6 +47,42 @@ function SectionCandidateOverview() {
             setError('Failed to fetch job count');
             // Fallback to a default value
             setJobCount(0);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const applyView = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get('http://localhost:7001/api/applyview');
+            
+            // Handle different response structures
+            let count = 0;
+            
+            if (Array.isArray(response.data)) {
+                // If response.data is an array
+                count = response.data.length;
+            } else if (response.data && Array.isArray(response.data.data)) {
+                // If response.data has a data property that's an array
+                count = response.data.data.length;
+            } else if (response.data && typeof response.data.count === 'number') {
+                // If response.data has a count property
+                count = response.data.count;
+            } else if (response.data && typeof response.data.total === 'number') {
+                // If response.data has a total property
+                count = response.data.total;
+            }
+            
+            console.log('API Response:', response.data);
+            console.log('Job count:', count);
+            
+            setApplicationCount(count);
+            setError(null);
+        } catch (error) {
+            console.error('Error fetching job count:', error);
+            setError('Failed to fetch job count');
+            // Fallback to a default value
+            setApplicationCount(0);
         } finally {
             setLoading(false);
         }

@@ -67,7 +67,10 @@ const Institute1 = () => {
     employmentType: "",
     lastdate: "",
     message: "",
-    requirements: ""
+    requirements: "",
+    gender:"",
+    experience:"",
+    qualification:""
   });
   
   const navigate = useNavigate();
@@ -122,7 +125,10 @@ const Institute1 = () => {
         employmentType: "",
         lastdate: "",
         message: "",
-        requirements: ""
+        requirements: "",
+         gender:"",
+         experience:"",
+        qualification:""
       });
       setShowForm(false);
     } catch (error) {
@@ -146,7 +152,13 @@ const Institute1 = () => {
       employmentType: vacancy.employmentType || "",
       lastdate: vacancy.lastdate ? new Date(vacancy.lastdate).toISOString().split('T')[0] : "",
       message: vacancy.message || "",
-      requirements: vacancy.requirements || ""
+      requirements: vacancy.requirements || "",
+
+      gender: vacancy.gender || "",
+      experience: vacancy.experience || "",
+      qualification: vacancy.qualification || "",
+
+       
     });
     setShowForm(true);
   };
@@ -227,7 +239,10 @@ const Institute1 = () => {
                 employmentType: "",
                 lastdate: "",
                 message: "",
-                requirements: ""
+                requirements: "",
+                 gender:"",
+    experience:"",
+    qualification:""
               });
               setShowForm(true);
             }}
@@ -331,26 +346,68 @@ const Institute1 = () => {
                   </div>
                   
                   {/* Location */}
+                  
                   <div className="form-group">
-                    <label htmlFor="location" className="form-label">
-                      <span className="label-text">Location</span>
+                    <label htmlFor="qualification" className="form-label">
+                      <span className="label-text">qualification</span>
                       <span className="required-asterisk">*</span>
                     </label>
                     <div className="input-container">
                       <MapPin className="input-icon" />
                       <input
-                        id="location"
+                        id="qualification"
                         type="text"
-                        value={formData.location}
-                        onChange={(e) => handleInputChange("location", e.target.value)}
-                        placeholder="e.g., Main Campus, Building A"
+                        value={formData.qualification}
+                        onChange={(e) => handleInputChange("qualification", e.target.value)}
+                        placeholder="qualification"
                         className="form-input with-icon"
                         required
                       />
                     </div>
                   </div>
+                  <div className="form-group">
+                    <label htmlFor="experience" className="form-label">
+                      <span className="label-text">Experience</span>
+                      <span className="required-asterisk">*</span>
+                    </label>
+                    <div className="input-container">
+                      <MapPin className="input-icon" />
+                      <input
+                        id="experience"
+                        type="text"
+                        value={formData.experience}
+                        onChange={(e) => handleInputChange("experience", e.target.value)}
+                        placeholder="experience"
+                        className="form-input with-icon"
+                        required
+                      />
+                    </div>
+                  </div>
+
+
+                  
                   
                   {/* Employment Type */}
+                  <div className="form-group">
+                    <label htmlFor="type" className="form-label">
+                      <span className="label-text">Gender</span>
+                      <span className="required-asterisk">*</span>
+                    </label>
+                    <div className="input-container">
+                      <select
+                        id="gender"
+                        value={formData.gender}
+                        onChange={(e) => handleInputChange("gender", e.target.value)}
+                        className="form-select"
+                        required
+                      >
+                        <option value="">Select gender type</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Both">Both</option>
+                      </select>
+                    </div>
+                  </div>
                   <div className="form-group">
                     <label htmlFor="type" className="form-label">
                       <span className="label-text">Employment Type</span>
@@ -373,6 +430,25 @@ const Institute1 = () => {
                     </div>
                   </div>
                   
+
+                  <div className="form-group">
+                    <label htmlFor="location" className="form-label">
+                      <span className="label-text">Location</span>
+                      <span className="required-asterisk">*</span>
+                    </label>
+                    <div className="input-container">
+                      <MapPin className="input-icon" />
+                      <input
+                        id="location"
+                        type="text"
+                        value={formData.location}
+                        onChange={(e) => handleInputChange("location", e.target.value)}
+                        placeholder="e.g., Main Campus, Building A"
+                        className="form-input with-icon"
+                        required
+                      />
+                    </div>
+                  </div>
                   {/* Application Deadline */}
                   <div className="form-group">
                     <label htmlFor="deadline" className="form-label">
@@ -553,6 +629,13 @@ const Institute1 = () => {
                         Edit
                       </button>
                       <button 
+                        className="action-button view-applications-button"
+                        onClick={() => setSelectedJobForApplications(vacancy)}
+                      >
+                        <Users className="button-icon" />
+                        View Applications
+                      </button>
+                      <button 
                         className="action-button delete-button"
                         onClick={() => handleDeleteVacancy(vacancy._id)}
                       >
@@ -590,7 +673,7 @@ const Institute1 = () => {
         {selectedJobForApplications && (
           <InstAppViewer 
             jobTitle={selectedJobForApplications.titel} 
-            jobId={selectedJobForApplications.id}
+            jobId={selectedJobForApplications._id} 
             isOpen={!!selectedJobForApplications}
             onClose={() => setSelectedJobForApplications(null)}
           />

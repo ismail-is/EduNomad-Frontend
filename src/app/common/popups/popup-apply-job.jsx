@@ -3,14 +3,14 @@ import SectionApplyJob from "../../pannels/public-user/sections/jobs/section-app
 function ApplyJobPopup() {
     return (
         <>
-            <div className="modal fade" id="apply_job_popup" aria-hidden="true" tabIndex={-1}>
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                        <div className="modal-header">
+            <div className="modal fade" id="apply_job_popup" aria-hidden="true" tabIndex={-1} >
+                <div className="modal-dialog modal-dialog-centered" >
+                    <div className="modal-content" style={{backgroundColor:"#f6f6f6"}}>
+                        <div className="modal-header"  style={{backgroundColor:"#f6f6f6"}}>
                             <h4 className="modal-title" id="sign_up_popupLabel">Apply For This Job</h4>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body" >
                             <div className="apl-job-inpopup">
                                 {/*Basic Information*/}
                                 <div className="panel panel-default">

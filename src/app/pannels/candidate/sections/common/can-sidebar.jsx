@@ -28,21 +28,21 @@ function CanSidebarSection() {
                             Dashboard
                         </NavLink>
                     </li>
-                    <li className={setMenuActive(currentpath, canRoute(candidate.PROFILE))}>
+                    {/* <li className={setMenuActive(currentpath, canRoute(candidate.PROFILE))}>
                         <NavLink to={canRoute(candidate.PROFILE)}><i className="fa fa-user" />
                             My Profile
                         </NavLink>
-                    </li>
-                    <li className={setMenuActive(currentpath, canRoute(candidate.APPLIED_JOBS))}>
+                    </li> */}
+                    {/* <li className={setMenuActive(currentpath, canRoute(candidate.APPLIED_JOBS))}>
                         <NavLink to={canRoute(candidate.APPLIED_JOBS)}><i className="fa fa-suitcase" />
                             Applied Jobs
                         </NavLink>
-                    </li>
-                    <li className={setMenuActive(currentpath, canRoute(candidate.RESUME))}>
+                    </li> */}
+                    {/* <li className={setMenuActive(currentpath, canRoute(candidate.RESUME))}>
                         <NavLink to={canRoute(candidate.RESUME)}><i className="fa fa-receipt" />
                             My Resume
                         </NavLink>
-                    </li>
+                    </li> */}
                     <li className={setMenuActive(currentpath, canRoute(candidate.SAVED_JOBS))}>
                         <NavLink to={canRoute(candidate.SAVED_JOBS)}><i className="fa fa-file-download" />
                             Saved Jobs
