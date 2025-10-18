@@ -16,6 +16,7 @@ function SignUpPopup() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -47,6 +48,93 @@ function SignUpPopup() {
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
+    };
+
+    const handleGoogleLogin = async () => {
+        setIsGoogleLoading(true);
+        setErrorMessage('');
+
+        try {
+            // Open Google OAuth in new window or redirect
+            const width = 600;
+            const height = 600;
+            const left = (window.screen.width - width) / 2;
+            const top = (window.screen.height - height) / 2;
+
+            const popup = window.open(
+                'http://localhost:7001/api/auth/google',
+                'Google Login',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            // Listen for message from popup
+            const messageHandler = (event) => {
+                if (event.origin !== 'http://localhost:7001') return;
+
+                if (event.data.type === 'GOOGLE_OAUTH_SUCCESS') {
+                    const { token, user, requiresRoleCompletion } = event.data;
+                    
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(user));
+
+                    // Close popup
+                    if (popup) popup.close();
+
+                    if (requiresRoleCompletion) {
+                        // Redirect to role completion page
+                        navigate('/', { 
+                            state: { 
+                                userId: user.id,
+                                email: user.email,
+                                username: user.username 
+                            } 
+                        });
+                    } else {
+                        // Regular login success
+                        alert('Login successful!');
+                        
+                        const modal = document.getElementById('sign_up_popup');
+                        const modalInstance = bootstrap.Modal.getInstance(modal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+
+                        // Redirect based on role
+                        if (user.role === 'school' || user.role === 'parent') {
+                            navigate('/school-dashboard');
+                        } else if (user.role === 'teacher' || user.role === 'tutor') {
+                            navigate('/teacher-dashboard');
+                        } else {
+                            navigate('/dashboard');
+                        }
+                    }
+
+                    window.removeEventListener('message', messageHandler);
+                }
+
+                if (event.data.type === 'GOOGLE_OAUTH_ERROR') {
+                    setErrorMessage(event.data.message);
+                    if (popup) popup.close();
+                    window.removeEventListener('message', messageHandler);
+                }
+            };
+
+            window.addEventListener('message', messageHandler);
+
+            // Check if popup is closed without success
+            const checkPopup = setInterval(() => {
+                if (popup && popup.closed) {
+                    clearInterval(checkPopup);
+                    setIsGoogleLoading(false);
+                    window.removeEventListener('message', messageHandler);
+                }
+            }, 500);
+
+        } catch (error) {
+            console.error('Google login error:', error);
+            setErrorMessage('Google login failed. Please try again.');
+            setIsGoogleLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -132,8 +220,42 @@ function SignUpPopup() {
                                     {errorMessage}
                                 </div>
                             )}
+                            
+                            {/* Google Sign In Button */}
+                            {/* <div className="mb-4">
+                                <button 
+                                    type="button"
+                                    className="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center"
+                                    onClick={handleGoogleLogin}
+                                    disabled={isGoogleLoading}
+                                >
+                                    {isGoogleLoading ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            Connecting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <img 
+                                                src="https://developers.google.com/identity/images/g-logo.png" 
+                                                alt="Google" 
+                                                style={{ width: '18px', height: '18px', marginRight: '10px' }}
+                                            />
+                                            Continue with Google
+                                        </>
+                                    )}
+                                </button>
+                            </div> */}
+
+                            {/* <div className="position-relative text-center mb-4">
+                                <hr />
+                                <span className="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted">
+                                    Or continue with
+                                </span>
+                            </div> */}
+
                             <div className="twm-tabs-style-2">
-                                <ul className="nav nav-tabs" id="myTab" role="tablist">
+                                {/* <ul className="nav nav-tabs" id="myTab" role="tablist">
                                     <li className="nav-item" role="presentation">
                                         <button 
                                             className={`nav-link ${activeTab === 'sign-candidate' ? 'active' : ''}`} 
@@ -152,7 +274,7 @@ function SignUpPopup() {
                                             <i className="fas fa-building me-2"></i>Teacher/Tutor
                                         </button>
                                     </li>
-                                </ul>
+                                </ul> */}
                                 <div className="tab-content" id="myTabContent">
                                     {/* School/Parent Signup */}
                                     <div className={`tab-pane fade ${activeTab === 'sign-candidate' ? 'show active' : ''}`} id="sign-candidate">
@@ -248,14 +370,15 @@ function SignUpPopup() {
                                                             I agree to the <a href="#">Terms and conditions</a>
                                                         </label>
                                                         <p className="mt-2">Already registered?
-                                                            <button 
+                                                             <a href='login'  
                                                                 className="twm-backto-login" 
                                                                 data-bs-target="#sign_up_popup2" 
-                                                                data-bs-toggle="modal" 
-                                                                data-bs-dismiss="modal"
+                                                                // data-bs-toggle="modal" 
+                                                                // data-bs-dismiss="modal"
+                                                                 onClick={() => navigate("/login")}
                                                             >
                                                                 Log in here
-                                                            </button>
+                                                            </a>
                                                         </p>
                                                     </div>
                                                 </div>

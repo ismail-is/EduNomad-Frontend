@@ -48,26 +48,26 @@ function CanSidebarSection() {
                             Saved Jobs
                         </NavLink>
                     </li>
-                    <li className={setMenuActive(currentpath, canRoute(candidate.CV_MANAGER))}>
+                    {/* <li className={setMenuActive(currentpath, canRoute(candidate.CV_MANAGER))}>
                         <NavLink to={canRoute(candidate.CV_MANAGER)}><i className="fa fa-paperclip" />
                             CV Manager
                         </NavLink>
-                    </li>
-                    <li className={setMenuActive(currentpath, canRoute(candidate.ALERTS))}>
+                    </li> */}
+                    {/* <li className={setMenuActive(currentpath, canRoute(candidate.ALERTS))}>
                         <NavLink to={canRoute(candidate.ALERTS)}><i className="fa fa-bell" />
                             Job Alerts
                         </NavLink>
-                    </li>
-                    <li className={setMenuActive(currentpath, canRoute(candidate.CHANGE_PASSWORD))}>
+                    </li> */}
+                    {/* <li className={setMenuActive(currentpath, canRoute(candidate.CHANGE_PASSWORD))}>
                         <NavLink to={canRoute(candidate.CHANGE_PASSWORD)}><i className="fa fa-fingerprint" />
                             Change Passeord
                         </NavLink>
-                    </li>
-                    <li className={setMenuActive(currentpath, canRoute(candidate.CHAT))}>
+                    </li> */}
+                    {/* <li className={setMenuActive(currentpath, canRoute(candidate.CHAT))}>
                         <NavLink to={canRoute(candidate.CHAT)}><i className="fa fa-comments" />
                             Chat
                         </NavLink>
-                    </li>
+                    </li> */}
                 </ul>
             </div>
         </>

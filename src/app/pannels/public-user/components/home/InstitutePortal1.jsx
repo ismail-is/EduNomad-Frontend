@@ -22,7 +22,7 @@ const InstitutePortal1 = () => {
               asChild
               className="primary-button"
             >
-              <Link to="/institute-page">
+              <Link to="/Post-job">
                 <Briefcase className="button-icon" />
                 Institute Portal
               </Link>
@@ -97,7 +97,7 @@ const InstitutePortal1 = () => {
               asChild
               className="institute-primary-button"
             >
-              <Link to="/institute-page">
+              <Link to="/Post-job">
                 <Briefcase className="button-icon" />
                 Access Institute Portal
               </Link>

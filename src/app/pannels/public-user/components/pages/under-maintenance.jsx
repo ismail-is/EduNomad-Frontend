@@ -2,11 +2,12 @@ import { NavLink } from "react-router-dom";
 import { publicUrlFor } from "../../../../../globals/constants";
 import JobzImage from "../../../../common/jobz-img";
 import { publicUser } from "../../../../../globals/route-names";
+import AdminLoginPage from "./AdminLoginPage";
 
 function UnderMaintenancePage() {
     return (
         <>
-            <div className="section-full site-bg-gray twm-u-maintenance-area" style={{ backgroundImage: `url(${publicUrlFor("images/background/bg-1.jpg")})` }}>
+            {/* <div className="section-full site-bg-gray twm-u-maintenance-area" style={{ backgroundImage: `url(${publicUrlFor("images/background/bg-1.jpg")})` }}>
                 <div className="twm-u-maintenance-wrap">
                     <div className="row">
                         <div className="col-lg-5 col-md-12">
@@ -34,7 +35,9 @@ function UnderMaintenancePage() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
+            <AdminLoginPage/>
+
 
         </>
     )

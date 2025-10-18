@@ -61,6 +61,7 @@ import SectionApplyJob from "../app/pannels/public-user/components/jobs/apply-jo
 import Register from "../app/pannels/public-user/components/pages/Register";
 import SignInPage from "../app/common/popups/popup-signin";
 import SignUpPage from "../app/common/popups/popup-signup";
+import OAuthRedirect from "../app/pannels/public-user/components/OAuthRedirect";
 
 function PublicUserRoutes() {
     return (
@@ -122,6 +123,7 @@ function PublicUserRoutes() {
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/login" element={<SignUpPage />} />
             <Route path="/apply/:id" element={<JobDetail1Page />} />
+            <Route path="/oauth-redirect" element={<OAuthRedirect />} />
         </Routes>
     )
 }

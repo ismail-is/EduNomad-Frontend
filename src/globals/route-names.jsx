@@ -4,7 +4,7 @@ import InstitutePortal1 from "../app/pannels/public-user/components/home/Institu
 export const base = {
     PUBLIC_PRE: "",
     CANDIDATE_PRE: "/candidate",
-    EMPLOYER_PRE: "/employer"
+    EMPLOYER_PRE: ""
 }
 
 export const publicUser = {
@@ -13,7 +13,7 @@ export const publicUser = {
     // HOME2: "/index2",
     HOME3: "/",
     InstitutePortal1:'/inst-portal',
-    Institute1:'/institute-page',
+    Institute1:'/Post-job',
     // HOME4: "/index4",
     // HOME5: "/index5",
     // HOME6: "/index6",
@@ -50,7 +50,7 @@ export const publicUser = {
         ERROR404:       "/error404",
         FAQ:            "/faq",
         CONTACT:        "/contact-us",
-        MAINTENANCE:    "/under-maintenance",
+        MAINTENANCE:    "/admin",
         COMING:         "/coming-soon",
         LOGIN:          "/login",
         AFTER_LOGIN:    "/after-login",
@@ -86,7 +86,7 @@ export const candidate = {
 
 export const employer = {
     INITIAL:        "/",
-    DASHBOARD:      "/dashboard",
+    DASHBOARD:      "/",
     PROFILE:        "/profile",
     POST_A_JOB:     "/post-a-job",
     MANAGE_JOBS:    "/manage-jobs",

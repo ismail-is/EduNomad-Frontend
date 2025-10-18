@@ -28,9 +28,9 @@ function SectionUploadCV() {
                                         <p>With 20 years of international teaching experience, our founder brings a deep insight and passion to the world of educational recruitment. From classrooms in the UK to schools across Egypt, Kenya, India, and Nigeria, this journey has shaped a mission: to connect exceptional educators with the opportunities they deserve.</p>
                                             <p>We strongly believe that world-class teaching talent can come from anywhere. It’s time the world recognized that the most inspiring educators aren't always found in the traditional places—and we are here to prove it.</p>
                                         </div>
-                                        <div className="twm-upload-file">
+                                        {/* <div className="twm-upload-file">
                                             <button type="button" className="site-button">Upload Your Resume <i className="feather-upload" /></button>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="twm-bold-circle-right" />
                                     <div className="twm-bold-circle-left" />

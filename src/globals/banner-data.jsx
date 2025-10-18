@@ -95,8 +95,8 @@ export const banner = {
     },
     candidate: {
         dashboard: {
-            title: "Candidate Dashboard",
-            crumb: "Candidate Dashboard"
+            title: "Admin Dashboard",
+            crumb: "Admin Dashboard"
         },
         profile: {
             title: "Candidate Profile",
@@ -138,7 +138,7 @@ export function showBanner(currentpath) {
     if (currentpath === publicUser.INITIAL ||
         currentpath.startsWith("/index3") ||
         currentpath.startsWith("/inst-portal") ||
-        currentpath.startsWith("/institute-page") ||
+        currentpath.startsWith("/Post-job") ||
         currentpath === publicUser.jobs.GRID_MAP ||
         currentpath === publicUser.jobs.DETAIL2 ||
         currentpath === publicUser.employer.DETAIL2 ||

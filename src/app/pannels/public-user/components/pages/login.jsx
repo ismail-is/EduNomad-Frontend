@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import JobZImage from "../../../../common/jobz-img";
 import { canRoute, candidate, empRoute, employer, publicUser } from "../../../../../globals/route-names";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -13,6 +13,89 @@ function LoginPage() {
     const [isLoading, setIsLoading] = useState({ candidate: false, employer: false });
     const [showCandidatePassword, setShowCandidatePassword] = useState(false);
     const [showEmployerPassword, setShowEmployerPassword] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+    // Handle Google OAuth message from popup
+    useEffect(() => {
+        const handleMessage = (event) => {
+            // For security, you might want to check the origin
+            // if (event.origin !== 'http://localhost:7001') return;
+
+            if (event.data.type === 'GOOGLE_OAUTH_SUCCESS') {
+                const { token, user, requiresRoleCompletion } = event.data;
+                
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(user));
+                setIsGoogleLoading(false);
+
+                if (requiresRoleCompletion) {
+                    // Redirect to role completion page
+                    navigate('/', { 
+                        state: { 
+                            userId: user.id,
+                            email: user.email,
+                            username: user.username 
+                        } 
+                    });
+                } else {
+                    // Regular login success
+                    alert('Login successful!');
+                    
+                    // Redirect based on user role
+                    if (user.role === 'school' || user.role === 'parent') {
+                        navigate(canRoute(candidate.DASHBOARD));
+                    } else if (user.role === 'teacher' || user.role === 'tutor') {
+                        navigate(empRoute(employer.DASHBOARD));
+                    } else {
+                        navigate(publicUser.HOME1);
+                    }
+                }
+            }
+
+            if (event.data.type === 'GOOGLE_OAUTH_ERROR') {
+                setError(event.data.message);
+                setIsGoogleLoading(false);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+
+        return () => {
+            window.removeEventListener('message', handleMessage);
+        };
+    }, [navigate]);
+
+    const handleGoogleLogin = async (userType = 'candidate') => {
+        setIsGoogleLoading(true);
+        setError('');
+
+        try {
+            // Open Google OAuth in new window
+            const width = 600;
+            const height = 600;
+            const left = (window.screen.width - width) / 2;
+            const top = (window.screen.height - height) / 2;
+
+            const popup = window.open(
+                'http://localhost:7001/api/auth/google',
+                'Google Login',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            // Check if popup is closed without success
+            const checkPopup = setInterval(() => {
+                if (popup && popup.closed) {
+                    clearInterval(checkPopup);
+                    setIsGoogleLoading(false);
+                }
+            }, 500);
+
+        } catch (error) {
+            console.error('Google login error:', error);
+            setError('Google login failed. Please try again.');
+            setIsGoogleLoading(false);
+        }
+    };
 
     const handleCandidateLogin = async (event) => {
         event.preventDefault();
@@ -68,7 +151,7 @@ function LoginPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
+                    },
                 body: JSON.stringify({
                     email: employerEmail,
                     password: employerPassword
@@ -133,9 +216,42 @@ function LoginPage() {
                                             {error}
                                         </div>
                                     )}
-                                    <div className="twm-tabs-style-2">
+                                    
+                                    {/* Google Login Button */}
+                                    <div className="mb-4">
+                                        <button 
+                                            type="button"
+                                            className="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center"
+                                            onClick={() => handleGoogleLogin('candidate')}
+                                            disabled={isGoogleLoading}
+                                        >
+                                            {isGoogleLoading ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                                    Connecting...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <img 
+                                                        src="https://developers.google.com/identity/images/g-logo.png" 
+                                                        alt="Google" 
+                                                        style={{ width: '18px', height: '18px', marginRight: '10px' }}
+                                                    />
+                                                    Continue with Google
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    {/* <div className="position-relative text-center mb-4">
+                                        <hr />
+                                        <span className="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted">
+                                            Or continue with email
+                                        </span>
+                                    </div> */}
+
+                                    {/* <div className="twm-tabs-style-2">
                                         <div className="tab-content" id="myTab2Content">
-                                            {/*Login Candidate Content*/}
                                             <form onSubmit={handleCandidateLogin} className="tab-pane fade show active" id="twm-login-candidate">
                                                 <div className="row">
                                                     <div className="col-lg-12">
@@ -200,7 +316,6 @@ function LoginPage() {
                                                     </div>
                                                 </div>
                                             </form>
-                                            {/*Login Employer Content*/}
                                             <form onSubmit={handleEmployerLogin} className="tab-pane fade" id="twm-login-Employer">
                                                 <div className="row">
                                                     <div className="col-lg-12">
@@ -267,7 +382,7 @@ function LoginPage() {
                                                 </div>
                                             </form>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -291,6 +406,16 @@ function LoginPage() {
                 
                 .password-toggle-icon:hover {
                     color: #333;
+                }
+
+                .btn-outline-danger {
+                    border-color: #db4437;
+                    color: #db4437;
+                }
+
+                .btn-outline-danger:hover {
+                    background-color: #db4437;
+                    color: white;
                 }
                 `}
             </style>
